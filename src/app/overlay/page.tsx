@@ -87,8 +87,8 @@ function OverlayContent() {
 
   if (layout === 'bottom') {
     return (
-      <div className="min-h-screen bg-transparent flex flex-col justify-end">
-        <div className="bg-gradient-to-t from-black via-black/95 to-transparent pt-16 pb-6 px-6">
+      <div className="bg-transparent">
+        <div className="bg-gradient-to-b from-black via-black/95 to-transparent pt-6 pb-16 px-6">
           <div className="max-w-7xl mx-auto">
             {/* Top row: Ideas */}
             {showIdeas && ideas.length > 0 && (
