@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET - Fetch all ideas
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Get session to check user's votes
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     let votedIds = new Set<string>();
 
     if (session?.user && (session.user as any).twitchId) {
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
 // POST - Create new idea (requires auth)
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user || !(session.user as any).twitchId) {
       return NextResponse.json(
