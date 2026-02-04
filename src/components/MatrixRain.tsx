@@ -103,7 +103,7 @@ function FloatingParticles() {
 
 export default function MatrixRain() {
   return (
-    <div className="fixed inset-0 -z-10" style={{ width: '100vw', minWidth: '100%' }}>
+    <div className="fixed top-0 left-0 right-0 bottom-0 -z-10 overflow-hidden" style={{ width: 'calc(100vw + 20px)', marginRight: '-20px' }}>
       <Canvas
         camera={{ position: [0, 0, 15], fov: 60 }}
         gl={{ antialias: true, alpha: true }}
