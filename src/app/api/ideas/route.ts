@@ -1,18 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
-import { createHash } from 'crypto';
-
-// Hash IP for privacy
-function hashIP(ip: string): string {
-  return createHash('sha256').update(ip + process.env.TWITCH_CLIENT_SECRET).digest('hex');
-}
-
-// Get client IP
-function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown';
-  return ip;
-}
 
 // GET - Fetch all ideas
 export async function GET(request: NextRequest) {
@@ -27,18 +15,34 @@ export async function GET(request: NextRequest) {
         ? { votes: 'desc' }
         : { createdAt: 'desc' },
       take: 50,
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            profilePicture: true,
+          },
+        },
+      },
     });
 
-    // Get user's votes to show which they've voted for
-    const clientIP = getClientIP(request);
-    const ipHash = hashIP(clientIP);
+    // Get session to check user's votes
+    const session = await getServerSession();
+    let votedIds = new Set<string>();
 
-    const userVotes = await prisma.vote.findMany({
-      where: { ipHash },
-      select: { ideaId: true },
-    });
+    if (session?.user && (session.user as any).twitchId) {
+      const dbUser = await prisma.user.findUnique({
+        where: { twitchId: (session.user as any).twitchId },
+      });
 
-    const votedIds = new Set(userVotes.map(v => v.ideaId));
+      if (dbUser) {
+        const userVotes = await prisma.vote.findMany({
+          where: { userId: dbUser.id },
+          select: { ideaId: true },
+        });
+        votedIds = new Set(userVotes.map(v => v.ideaId));
+      }
+    }
 
     const ideasWithVoteStatus = ideas.map(idea => ({
       ...idea,
@@ -55,9 +59,18 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create new idea
+// POST - Create new idea (requires auth)
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession();
+
+    if (!session?.user || !(session.user as any).twitchId) {
+      return NextResponse.json(
+        { error: 'Du skal logge ind med Twitch for at sende en idé' },
+        { status: 401 }
+      );
+    }
+
     const { title, category } = await request.json();
 
     if (!title || title.trim().length < 3) {
@@ -74,13 +87,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const clientIP = getClientIP(request);
-    const ipHash = hashIP(clientIP);
+    // Get user from DB
+    const user = await prisma.user.findUnique({
+      where: { twitchId: (session.user as any).twitchId },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Bruger ikke fundet' },
+        { status: 404 }
+      );
+    }
 
     // Rate limiting: Check if user submitted in last 5 minutes
     const recentIdea = await prisma.streamIdea.findFirst({
       where: {
-        ipHash,
+        userId: user.id,
         createdAt: {
           gte: new Date(Date.now() - 5 * 60 * 1000),
         },
@@ -98,7 +120,16 @@ export async function POST(request: NextRequest) {
       data: {
         title: title.trim(),
         category: category || 'general',
-        ipHash,
+        userId: user.id,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            profilePicture: true,
+          },
+        },
       },
     });
 

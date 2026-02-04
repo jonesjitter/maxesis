@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
-import { createHash } from 'crypto';
 
-function hashIP(ip: string): string {
-  return createHash('sha256').update(ip + process.env.TWITCH_CLIENT_SECRET).digest('hex');
-}
-
-function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown';
-  return ip;
-}
-
-// POST - Vote for an idea
+// POST - Vote for an idea (requires auth)
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession();
+
+    if (!session?.user || !(session.user as any).twitchId) {
+      return NextResponse.json(
+        { error: 'Du skal logge ind med Twitch for at stemme' },
+        { status: 401 }
+      );
+    }
+
     const { ideaId } = await request.json();
 
     if (!ideaId) {
@@ -24,13 +23,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const clientIP = getClientIP(request);
-    const ipHash = hashIP(clientIP);
+    // Get user from DB
+    const user = await prisma.user.findUnique({
+      where: { twitchId: (session.user as any).twitchId },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Bruger ikke fundet' },
+        { status: 404 }
+      );
+    }
 
     // Check if already voted
     const existingVote = await prisma.vote.findUnique({
       where: {
-        ideaId_ipHash: { ideaId, ipHash },
+        ideaId_userId: { ideaId, userId: user.id },
       },
     });
 
@@ -50,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     // Add vote
     await prisma.vote.create({
-      data: { ideaId, ipHash },
+      data: { ideaId, userId: user.id },
     });
 
     const updatedIdea = await prisma.streamIdea.update({
