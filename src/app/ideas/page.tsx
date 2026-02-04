@@ -195,7 +195,7 @@ export default function IdeasPage() {
                     disabled={!session}
                     onClick={() => session ? setNewCategory(cat.value) : signIn('twitch')}
                     className={`px-3 py-2 rounded-lg font-mono text-sm transition-all ${
-                      newCategory === cat.value
+                      newCategory === cat.value && session
                         ? 'bg-[#00ff88]/20 border border-[#00ff88]/50 text-[#00ff88]'
                         : 'bg-white/5 border border-white/10 text-white/60 hover:border-white/30'
                     } ${!session ? 'opacity-60' : ''}`}
