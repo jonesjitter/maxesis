@@ -122,7 +122,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="py-8 text-center">
         <p className="text-white/20 text-sm font-mono">
-          &copy; 2025 MAXESIS // ALL RIGHTS RESERVED
+          &copy; {new Date().getFullYear()} MAXESIS // ALL RIGHTS RESERVED
         </p>
       </footer>
     </>

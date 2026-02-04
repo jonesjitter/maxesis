@@ -6,8 +6,8 @@ import * as THREE from 'three';
 
 function MatrixColumns() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const numColumns = 100;
-  const numRows = 35;
+  const numColumns = 150;
+  const numRows = 40;
   const totalChars = numColumns * numRows;
 
   const { dummy, offsets, speeds } = useMemo(() => {
@@ -31,7 +31,7 @@ function MatrixColumns() {
 
     for (let col = 0; col < numColumns; col++) {
       for (let row = 0; row < numRows; row++) {
-        const x = (col - numColumns / 2) * 0.5;
+        const x = (col - numColumns / 2) * 0.6;
         const baseY = (row - numRows / 2) * 0.5;
         const y = baseY - ((time * speeds[idx] + offsets[idx]) % 20);
 
@@ -70,9 +70,9 @@ function FloatingParticles() {
   const positions = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 60;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 30;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 15;
+      pos[i * 3] = (Math.random() - 0.5) * 100;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 40;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 20;
     }
     return pos;
   }, []);
@@ -103,13 +103,13 @@ function FloatingParticles() {
 
 export default function MatrixRain() {
   return (
-    <div className="fixed top-0 left-0 right-0 bottom-0 -z-10 overflow-hidden" style={{ width: 'calc(100vw + 20px)', marginRight: '-20px' }}>
+    <div className="fixed inset-0 -z-10 w-screen h-screen overflow-hidden">
       <Canvas
-        camera={{ position: [0, 0, 20], fov: 75 }}
+        camera={{ position: [0, 0, 25], fov: 90 }}
         gl={{ antialias: true, alpha: true }}
       >
         <color attach="background" args={['#0a0a0a']} />
-        <fog attach="fog" args={['#0a0a0a', 15, 40]} />
+        <fog attach="fog" args={['#0a0a0a', 20, 50]} />
         <MatrixColumns />
         <FloatingParticles />
       </Canvas>
