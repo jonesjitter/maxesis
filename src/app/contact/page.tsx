@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 
@@ -8,19 +8,25 @@ const MatrixRain = dynamic(() => import('@/components/MatrixRain'), {
   ssr: false,
 });
 
+// Emails are obfuscated to prevent bot scraping
+// Encoded as base64 and only decoded client-side on interaction
 const contactMethods = [
   {
     name: 'Business Inquiries',
     description: 'Samarbejde, sponsorater & forretningsmæssige henvendelser',
     icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
-    email: 'business@maxesis.dk',
+    // base64 encoded: business@maxesis.com
+    encodedEmail: 'YnVzaW5lc3NAbWF4ZXNpcy5jb20=',
+    displayHint: 'business [at] maxesis.com',
     color: '#00ff88',
   },
   {
     name: 'General Contact',
     description: 'Spørgsmål, feedback & generelle henvendelser',
     icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
-    email: 'contact@maxesis.dk',
+    // base64 encoded: contact@maxesis.com
+    encodedEmail: 'Y29udGFjdEBtYXhlc2lzLmNvbQ==',
+    displayHint: 'contact [at] maxesis.com',
     color: '#9146ff',
   },
 ];
@@ -52,12 +58,28 @@ const socialLinks = [
   },
 ];
 
+// Decode email only when needed (client-side)
+const decodeEmail = (encoded: string): string => {
+  try {
+    return atob(encoded);
+  } catch {
+    return '';
+  }
+};
+
 export default function ContactPage() {
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
+  const [revealedEmails, setRevealedEmails] = useState<Record<string, string>>({});
 
-  const copyEmail = (email: string) => {
-    navigator.clipboard.writeText(email);
-    setCopiedEmail(email);
+  const handleEmailClick = (encodedEmail: string) => {
+    const decoded = decodeEmail(encodedEmail);
+
+    // Reveal the email
+    setRevealedEmails(prev => ({ ...prev, [encodedEmail]: decoded }));
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(decoded);
+    setCopiedEmail(encodedEmail);
     setTimeout(() => setCopiedEmail(null), 2000);
   };
 
@@ -91,7 +113,7 @@ export default function ContactPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ scale: 1.02 }}
-                onClick={() => copyEmail(method.email)}
+                onClick={() => handleEmailClick(method.encodedEmail)}
               >
                 <div className="flex items-start gap-4">
                   <div
@@ -116,12 +138,12 @@ export default function ContactPage() {
                         className="px-3 py-1.5 bg-white/5 rounded-lg font-mono text-sm"
                         style={{ color: method.color }}
                       >
-                        {method.email}
+                        {revealedEmails[method.encodedEmail] || method.displayHint}
                       </code>
                       <motion.span
                         className="text-xs text-white/50"
                         initial={{ opacity: 0 }}
-                        animate={{ opacity: copiedEmail === method.email ? 1 : 0 }}
+                        animate={{ opacity: copiedEmail === method.encodedEmail ? 1 : 0 }}
                       >
                         Kopieret!
                       </motion.span>
@@ -132,7 +154,7 @@ export default function ContactPage() {
                 {/* Copy hint */}
                 <div className="mt-4 text-right">
                   <span className="text-white/30 text-xs font-mono group-hover:text-white/60 transition-colors">
-                    Klik for at kopiere
+                    {revealedEmails[method.encodedEmail] ? 'Klik for at kopiere igen' : 'Klik for at se email'}
                   </span>
                 </div>
               </motion.div>
