@@ -28,12 +28,8 @@ export default function Navigation() {
           <div className="max-w-4xl mx-auto px-6 py-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl">
             <div className="flex items-center justify-between">
               {/* Logo */}
-              <Link href="/" className="group text-xl font-black text-white transition-colors">
-                <span className="inline-block relative">
-                  <span className="relative z-10 group-hover:text-[#00ff88] transition-colors duration-300">MAX</span>
-                  <span className="absolute inset-0 bg-[#00ff88]/0 group-hover:bg-[#00ff88]/20 blur-md transition-all duration-500 group-hover:duration-200" />
-                </span>
-                <span className="group-hover:text-[#00ff88] transition-colors duration-300 delay-75">ESIS</span>
+              <Link href="/" className="text-xl font-black text-white hover:text-[#00ff88] transition-colors">
+                MAXESIS
               </Link>
 
               {/* Nav Items */}
