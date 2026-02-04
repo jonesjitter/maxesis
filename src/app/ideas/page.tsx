@@ -139,137 +139,117 @@ export default function IdeasPage() {
             </p>
           </motion.div>
 
-          {/* Auth section */}
-          <motion.div
-            className="mb-8 flex justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
-          >
-            {status === 'loading' ? (
-              <div className="text-white/40 font-mono text-sm">Loading...</div>
-            ) : session ? (
-              <div className="flex items-center gap-4 px-4 py-2 bg-black/50 backdrop-blur-sm border border-white/10 rounded-full">
-                {session.user?.image && (
-                  <img
-                    src={session.user.image}
-                    alt={session.user.name || 'User'}
-                    className="w-8 h-8 rounded-full border border-[#00ff88]/50"
-                  />
-                )}
-                <span className="text-white font-mono text-sm">
-                  {session.user?.name}
-                </span>
-                <button
-                  onClick={() => signOut()}
-                  className="text-white/40 hover:text-white/80 font-mono text-xs transition-colors"
-                >
-                  Log ud
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => signIn('twitch')}
-                className="flex items-center gap-2 px-6 py-3 bg-[#9146FF] hover:bg-[#7c3aed] text-white font-bold rounded-xl transition-all"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
-                </svg>
-                Log ind med Twitch
-              </button>
-            )}
-          </motion.div>
-
           {/* Submit form */}
-          <motion.div
+          <motion.form
+            onSubmit={handleSubmit}
             className="mb-12 p-6 bg-black/50 backdrop-blur-sm border border-white/10 rounded-2xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.1 }}
           >
-            {session ? (
-              <form onSubmit={handleSubmit}>
-                <div className="flex flex-col gap-4">
-                  <div>
-                    <input
-                      type="text"
-                      value={newIdea}
-                      onChange={(e) => setNewIdea(e.target.value)}
-                      placeholder="Skriv din stream idé..."
-                      maxLength={200}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 font-mono focus:outline-none focus:border-[#00ff88]/50 focus:ring-1 focus:ring-[#00ff88]/50 transition-all"
+            <div className="flex flex-col gap-4">
+              {/* User info or login prompt */}
+              {session ? (
+                <div className="flex items-center gap-3 mb-2">
+                  {session.user?.image && (
+                    <img
+                      src={session.user.image}
+                      alt={session.user.name || 'User'}
+                      className="w-8 h-8 rounded-full border border-[#00ff88]/50"
                     />
-                    <div className="flex justify-between mt-2 text-xs text-white/30 font-mono">
-                      <span>{newIdea.length}/200</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat.value}
-                        type="button"
-                        onClick={() => setNewCategory(cat.value)}
-                        className={`px-3 py-2 rounded-lg font-mono text-sm transition-all ${
-                          newCategory === cat.value
-                            ? 'bg-[#00ff88]/20 border border-[#00ff88]/50 text-[#00ff88]'
-                            : 'bg-white/5 border border-white/10 text-white/60 hover:border-white/30'
-                        }`}
-                      >
-                        {cat.emoji} {cat.label}
-                      </button>
-                    ))}
-                  </div>
-
+                  )}
+                  <span className="text-white font-mono text-sm">
+                    {session.user?.name}
+                  </span>
                   <button
-                    type="submit"
-                    disabled={submitting || !newIdea.trim()}
-                    className="px-6 py-3 bg-gradient-to-r from-[#00ff88] to-[#00ffff] text-black font-bold rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    type="button"
+                    onClick={() => signOut()}
+                    className="text-white/40 hover:text-white/80 font-mono text-xs transition-colors ml-auto"
                   >
-                    {submitting ? 'Sender...' : '✨ Send Idé'}
+                    Log ud
                   </button>
-
-                  <AnimatePresence>
-                    {error && (
-                      <motion.p
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="text-red-400 text-sm font-mono"
-                      >
-                        {error}
-                      </motion.p>
-                    )}
-                    {success && (
-                      <motion.p
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="text-[#00ff88] text-sm font-mono"
-                      >
-                        ✓ Idé sendt! Tak for dit input.
-                      </motion.p>
-                    )}
-                  </AnimatePresence>
                 </div>
-              </form>
-            ) : (
-              <div className="text-center py-4">
-                <p className="text-white/60 font-mono mb-4">
-                  Log ind med Twitch for at sende idéer
-                </p>
+              ) : null}
+
+              <div className="relative">
+                <input
+                  type="text"
+                  value={newIdea}
+                  onChange={(e) => setNewIdea(e.target.value)}
+                  placeholder="Skriv din stream idé..."
+                  maxLength={200}
+                  disabled={!session}
+                  onClick={() => !session && signIn('twitch')}
+                  className={`w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 font-mono focus:outline-none focus:border-[#00ff88]/50 focus:ring-1 focus:ring-[#00ff88]/50 transition-all ${!session ? 'cursor-pointer opacity-60' : ''}`}
+                />
+                <div className="flex justify-between mt-2 text-xs text-white/30 font-mono">
+                  <span>{newIdea.length}/200</span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {categories.map((cat) => (
+                  <button
+                    key={cat.value}
+                    type="button"
+                    disabled={!session}
+                    onClick={() => session ? setNewCategory(cat.value) : signIn('twitch')}
+                    className={`px-3 py-2 rounded-lg font-mono text-sm transition-all ${
+                      newCategory === cat.value
+                        ? 'bg-[#00ff88]/20 border border-[#00ff88]/50 text-[#00ff88]'
+                        : 'bg-white/5 border border-white/10 text-white/60 hover:border-white/30'
+                    } ${!session ? 'opacity-60' : ''}`}
+                  >
+                    {cat.emoji} {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {session ? (
                 <button
+                  type="submit"
+                  disabled={submitting || !newIdea.trim()}
+                  className="px-6 py-3 bg-gradient-to-r from-[#00ff88] to-[#00ffff] text-black font-bold rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {submitting ? 'Sender...' : '✨ Send Idé'}
+                </button>
+              ) : (
+                <button
+                  type="button"
                   onClick={() => signIn('twitch')}
-                  className="flex items-center gap-2 mx-auto px-6 py-3 bg-[#9146FF] hover:bg-[#7c3aed] text-white font-bold rounded-xl transition-all"
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-[#9146FF] hover:bg-[#7c3aed] text-white font-bold rounded-xl transition-all"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
                   </svg>
-                  Log ind med Twitch
+                  Log ind med Twitch for at sende idé
                 </button>
-              </div>
-            )}
-          </motion.div>
+              )}
+
+              <AnimatePresence>
+                {error && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-red-400 text-sm font-mono"
+                  >
+                    {error}
+                  </motion.p>
+                )}
+                {success && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-[#00ff88] text-sm font-mono"
+                  >
+                    ✓ Idé sendt! Tak for dit input.
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.form>
 
           {/* Ideas list */}
           <motion.div
