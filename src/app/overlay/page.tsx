@@ -272,31 +272,6 @@ function OverlayContent() {
             </div>
           )}
 
-          {/* Social links */}
-          {showSocials && (
-            <div className="p-4 border-t border-white/10">
-              <div className="text-white/40 font-mono text-xs mb-3 tracking-widest">FIND MIG HER</div>
-              <div className="grid grid-cols-2 gap-2">
-                {socials.map((social) => (
-                  <div
-                    key={social.name}
-                    className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5"
-                  >
-                    <div
-                      className="w-6 h-6 rounded flex items-center justify-center"
-                      style={{ backgroundColor: `${social.color}20` }}
-                    >
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill={social.color}>
-                        <path d={social.icon} />
-                      </svg>
-                    </div>
-                    <span className="text-white/80 text-xs font-mono truncate">{social.handle}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Footer */}
           <div className="px-4 py-2 bg-[#00ff88]/10 border-t border-[#00ff88]/20">
             <div className="text-center text-[#00ff88] font-mono text-xs tracking-widest">
