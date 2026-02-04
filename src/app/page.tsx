@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import GlitchText from '@/components/GlitchText';
 import SocialLinks from '@/components/SocialLinks';
 import StatusBar from '@/components/StatusBar';
+import StatsSection from '@/components/StatsSection';
 
 const MatrixRain = dynamic(() => import('@/components/MatrixRain'), {
   ssr: false,
@@ -89,6 +90,21 @@ export default function Home() {
           </motion.div>
         </div>
 
+        {/* Scroll indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2 }}
+        >
+          <span className="text-white/30 text-xs font-mono">SCROLL</span>
+          <motion.div
+            className="w-px h-8 bg-gradient-to-b from-[#00ff88] to-transparent"
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+        </motion.div>
+
         {/* Version badge */}
         <motion.div
           className="absolute bottom-8 right-8 font-mono text-xs text-white/20"
@@ -99,6 +115,16 @@ export default function Home() {
           v1.0.0 // SYSTEM ACTIVE
         </motion.div>
       </main>
+
+      {/* Stats Section */}
+      <StatsSection />
+
+      {/* Footer */}
+      <footer className="py-8 text-center">
+        <p className="text-white/20 text-sm font-mono">
+          &copy; 2025 MAXESIS // ALL RIGHTS RESERVED
+        </p>
+      </footer>
     </>
   );
 }
