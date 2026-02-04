@@ -33,13 +33,13 @@ git commit -m "Din commit besked"
 git push origin main
 
 # 2. SSH ind og deploy
-ssh -i ~/.ssh/"Hetzner - Maxexis" root@46.224.182.151 "cd /var/www/maxesis && git pull origin main && docker-compose down && docker-compose build --no-cache && docker-compose up -d"
+ssh -i ~/.ssh/"Hetzner - Maxexis" root@46.224.182.151 "cd /var/www/maxesis && git pull origin main && docker-compose down && docker-compose build && docker-compose up -d"
 ```
 
 ### One-liner Deploy
 
 ```bash
-cd ~/maxesis && git add -A && git commit -m "Update" && git push origin main && ssh -i ~/.ssh/"Hetzner - Maxexis" root@46.224.182.151 "cd /var/www/maxesis && git pull origin main && docker-compose down && docker-compose build --no-cache && docker-compose up -d"
+cd ~/maxesis && git add -A && git commit -m "Update" && git push origin main && ssh -i ~/.ssh/"Hetzner - Maxexis" root@46.224.182.151 "cd /var/www/maxesis && git pull origin main && docker-compose down && docker-compose build && docker-compose up -d"
 ```
 
 ## Docker Commands (på server)
@@ -57,7 +57,10 @@ docker-compose restart
 # Stop
 docker-compose down
 
-# Rebuild og start
+# Rebuild og start (bruger layer caching - hurtigt)
+docker-compose build && docker-compose up -d
+
+# Fuld rebuild uden cache (kun ved større ændringer/problemer)
 docker-compose build --no-cache && docker-compose up -d
 ```
 
