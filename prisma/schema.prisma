@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model StreamIdea {
+  id          String   @id @default(cuid())
+  title       String
+  category    String   @default("general")
+  votes       Int      @default(0)
+  status      String   @default("pending") // pending, planned, done, rejected
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ipHash      String   // Hashed IP for rate limiting
+
+  @@index([votes])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  ideaId    String
+  ipHash    String   // Hashed IP to prevent double voting
+  createdAt DateTime @default(now())
+
+  @@unique([ideaId, ipHash])
+  @@index([ideaId])
+}
