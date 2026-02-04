@@ -88,40 +88,89 @@ function OverlayContent() {
   if (layout === 'bottom') {
     return (
       <div className="min-h-screen bg-transparent flex flex-col justify-end">
-        <div className="bg-gradient-to-t from-black/90 to-transparent p-6">
-          <div className="max-w-6xl mx-auto">
-            <div className="flex items-end justify-between gap-8">
-              {showIdeas && (
-                <div className="flex-1">
-                  <div className="text-[#00ff88] font-mono text-xs mb-3 tracking-widest">
-                    STREAM IDÉER • STEM PÅ MAXESIS.COM/IDEAS
+        <div className="bg-gradient-to-t from-black via-black/95 to-transparent pt-16 pb-6 px-6">
+          <div className="max-w-7xl mx-auto">
+            {/* Top row: Ideas */}
+            {showIdeas && ideas.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="text-[#00ff88] font-mono text-sm tracking-widest font-bold">
+                    💡 STREAM IDÉER
                   </div>
-                  <div className="flex gap-4">
-                    {ideas.slice(0, 4).map((idea, i) => (
-                      <motion.div
-                        key={idea.id}
-                        className="flex-1 bg-black/60 border border-white/10 rounded-lg p-3"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                      >
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[#00ff88] font-bold font-mono">{idea.votes}</span>
-                          <span className="text-xs">{categoryEmojis[idea.category] || '💡'}</span>
-                        </div>
-                        <div className="text-white text-sm truncate">{idea.title}</div>
-                      </motion.div>
-                    ))}
+                  <div className="flex-1 h-px bg-gradient-to-r from-[#00ff88]/50 to-transparent" />
+                  <div className="text-white/50 font-mono text-xs">
+                    STEM PÅ MAXESIS.COM/IDEAS
                   </div>
                 </div>
-              )}
+                <div className="grid grid-cols-4 gap-4">
+                  {ideas.slice(0, 4).map((idea, i) => (
+                    <motion.div
+                      key={idea.id}
+                      className="bg-black/60 backdrop-blur-sm border border-[#00ff88]/20 rounded-xl p-4 relative overflow-hidden"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                    >
+                      {i === 0 && (
+                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 to-yellow-600" />
+                      )}
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
+                          i === 0 ? 'bg-yellow-500/20 text-yellow-400' :
+                          i === 1 ? 'bg-gray-400/20 text-gray-300' :
+                          i === 2 ? 'bg-orange-500/20 text-orange-400' :
+                          'bg-white/10 text-white/50'
+                        }`}>
+                          #{i + 1}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[#00ff88] font-bold font-mono text-lg">{idea.votes}</span>
+                          <span className="text-white/40 text-xs">votes</span>
+                        </div>
+                        <span className="ml-auto text-lg">{categoryEmojis[idea.category] || '💡'}</span>
+                      </div>
+                      <div className="text-white font-medium truncate">{idea.title}</div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Bottom row: Socials + QR */}
+            <div className="flex items-center justify-between gap-8">
+              {/* Socials */}
               {showSocials && (
-                <div className="flex gap-4">
+                <div className="flex items-center gap-6">
                   {socials.map((social) => (
-                    <div key={social.name} className="text-center">
-                      <div className="text-white/60 text-xs font-mono">{social.handle}</div>
+                    <div key={social.name} className="flex items-center gap-2">
+                      <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: `${social.color}20` }}
+                      >
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill={social.color}>
+                          <path d={social.icon} />
+                        </svg>
+                      </div>
+                      <span className="text-white/80 font-mono text-sm">{social.handle}</span>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* QR + CTA */}
+              {showQR && (
+                <div className="flex items-center gap-4 bg-black/60 backdrop-blur-sm border border-[#00ff88]/30 rounded-xl px-5 py-3">
+                  <div className="w-12 h-12 bg-white rounded-lg p-1">
+                    <img
+                      src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://maxesis.com/ideas&bgcolor=ffffff&color=000000"
+                      alt="QR Code"
+                      className="w-full h-full"
+                    />
+                  </div>
+                  <div>
+                    <div className="text-white font-bold">STEM PÅ NÆSTE STREAM!</div>
+                    <div className="text-[#00ff88] font-mono text-sm">maxesis.com/ideas</div>
+                  </div>
                 </div>
               )}
             </div>
