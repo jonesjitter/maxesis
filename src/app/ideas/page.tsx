@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
@@ -34,8 +35,10 @@ const categories = [
   { value: 'general', label: 'Andet', emoji: '💡' },
 ];
 
-export default function IdeasPage() {
-  const { data: session, status } = useSession();
+function IdeasContent() {
+  const { data: session, status, update } = useSession();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [loading, setLoading] = useState(true);
   const [newIdea, setNewIdea] = useState('');
@@ -56,9 +59,23 @@ export default function IdeasPage() {
     }
   };
 
+  // Refresh session after OAuth callback
   useEffect(() => {
-    fetchIdeas();
+    if (typeof window !== 'undefined' && window.location.search) {
+      // Force session update after OAuth redirect
+      update().then(() => {
+        // Clean URL after updating session
+        router.replace('/ideas');
+      });
+    }
   }, []);
+
+  // Refetch ideas when session changes
+  useEffect(() => {
+    if (status !== 'loading') {
+      fetchIdeas();
+    }
+  }, [status, session]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -363,5 +380,17 @@ export default function IdeasPage() {
         </div>
       </main>
     </>
+  );
+}
+
+export default function IdeasPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-[#00ff88] font-mono animate-pulse">Loading...</div>
+      </div>
+    }>
+      <IdeasContent />
+    </Suspense>
   );
 }
