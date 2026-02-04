@@ -15,6 +15,11 @@ const navItems = [
 export default function Navigation() {
   const pathname = usePathname();
 
+  // Don't show navigation on overlay page
+  if (pathname === '/overlay') {
+    return null;
+  }
+
   return (
     <>
       {/* Desktop Navigation - Top */}

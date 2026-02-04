@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navigation from "@/components/Navigation";
 import Providers from "@/components/Providers";
+import LayoutWrapper from "@/components/LayoutWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,11 +36,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0a0a0a]`}
       >
         <Providers>
-          <Navigation />
-          <div className="md:pt-20 pb-24 md:pb-0">
+          <LayoutWrapper>
             {children}
-          </div>
-          <div className="crt-overlay" />
+          </LayoutWrapper>
         </Providers>
       </body>
     </html>
