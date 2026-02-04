@@ -23,9 +23,10 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3000
 
-# Start script that runs migrations then starts server
-CMD npx prisma migrate deploy && node server.js
+# Run migrations with the installed Prisma version, then start server
+CMD ./node_modules/.bin/prisma migrate deploy && node server.js
